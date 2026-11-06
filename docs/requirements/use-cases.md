@@ -1480,6 +1480,7 @@ Details:
 **Associated Information:**
 - The student's account and previously submitted work are retained; deactivation is not deletion (UC-STU-delete-student: Delete a student). The account can be reactivated in the future (UC-STU-reactivate-student: Reactivate a student).
 - The student cannot log in or submit weekly activity reports or peer evaluations. Existing peer evaluations about her remain in section reports for their evaluated weeks (BR-peer-evaluation-active-evaluatee).
+- An already authenticated session loses access to protected resources on its next request (FR-SEC-active-account).
 
 **Related Use Cases:** UC-STU-delete-student: Delete a student; UC-STU-reactivate-student: Reactivate a student
 **Assumptions:**
