@@ -1473,6 +1473,7 @@ Details:
 7. Use case ends.
 
 **Extensions:**
+3a. The selected student is already deactivated. The system informs the course admin or instructor that no change was made, and the use case ends.
 **Priority:** Low
 **Frequency of Use:** Rare. Occurs occasionally when a student withdraws from a course section.
 **Business Rules:** BR-student-lifecycle; BR-peer-evaluation-active-evaluatee
