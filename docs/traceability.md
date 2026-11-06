@@ -356,6 +356,7 @@ A business rule (`BR-*`, owned by [business-rules.md](requirements/business-rule
 | `BR-invitations-admin-only` | `UC-INS-invite-instructors`, `UC-STU-invite-students`, `UC-STU-view-pending-invitations` | — | — |
 | `BR-link-constraints` | `UC-LNK-create-link`, `UC-LNK-edit-link` | — | — |
 | `BR-lock-expiry` | `UC-DOC-edit-document`, `UC-DOC-edit-use-case` | `DI-concurrency-control`, (prose) | — |
+| `BR-peer-evaluation-active-evaluatee` | `UC-EVA-submit-evaluation`, `UC-STU-deactivate-student` | — | — |
 | `BR-review-authority` | `UC-REV-review-documents` | (prose) | — |
 | `BR-review-lock` | `UC-REV-submit-for-review` | (prose) | — |
 | `BR-role-based-access` | _universal_ — 41 UCs (every authoring/CRUD use case) | `FR-SEC-authorization`, `SEC-authorization` | `QS-cross-team-denial` |
@@ -372,4 +373,4 @@ A business rule (`BR-*`, owned by [business-rules.md](requirements/business-rule
 | `BR-team-single-instructor` | `UC-INS-assign-instructors`, `UC-INS-remove-instructor` | — | — |
 | `BR-use-case-name-unique` | `UC-DOC-create-use-case` | — | — |
 
-> **Readout.** All 36 rules have at least one enforcer, so the backward view confirms the forward coverage check from the other direction. Two rules are load-bearing (`BR-role-based-access` 41 UCs, `BR-team-scoped-access` 30 UCs), so touching either is a project-wide change, which is exactly what the index makes visible. `BR-team-scoped-access` grew from 26 to 30 citing use cases on 2026-09-07, when OI-50 widened it from requirement content to all team-owned student work and the weekly-activity-report and peer-evaluation use cases began citing it; `BR-section-scoped-access` is its instructor-side companion, added in the same change. The `(prose)` SRS entries are rules the SRS cites in narrative (for example the locking rules in the autosave/persistence discussion) rather than from a specific `FR-*`.
+> **Readout.** All 37 rules have at least one enforcer, so the backward view confirms the forward coverage check from the other direction. Two rules are load-bearing (`BR-role-based-access` 41 UCs, `BR-team-scoped-access` 30 UCs), so touching either is a project-wide change, which is exactly what the index makes visible. `BR-team-scoped-access` grew from 26 to 30 citing use cases on 2026-09-07, when OI-50 widened it from requirement content to all team-owned student work and the weekly-activity-report and peer-evaluation use cases began citing it; `BR-section-scoped-access` is its instructor-side companion, added in the same change. The `(prose)` SRS entries are rules the SRS cites in narrative (for example the locking rules in the autosave/persistence discussion) rather than from a specific `FR-*`.
