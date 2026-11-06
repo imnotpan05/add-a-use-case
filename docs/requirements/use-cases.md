@@ -1476,12 +1476,14 @@ Details:
 3a. The selected student is already deactivated. The system informs the course admin or instructor that no change was made, and the use case ends.
 3b. The course admin or instructor is not authorized to deactivate this student (BR-student-lifecycle). The system rejects the request without changing the student's account, and the use case ends.
 4a. The course admin or instructor cancels at the warning. The system makes no change, and the use case ends.
+
 **Priority:** Low
 **Frequency of Use:** Rare. Occurs occasionally when a student withdraws from a course section.
-**Business Rules:** BR-student-lifecycle; BR-peer-evaluation-active-evaluatee
+**Business Rules:** BR-student-lifecycle; BR-submission-owed; BR-peer-evaluation-active-evaluatee
 
 **Associated Information:**
 - The student's account and previously submitted work are retained; deactivation is not deletion (UC-STU-delete-student: Delete a student). The account can be reactivated in the future (UC-STU-reactivate-student: Reactivate a student).
+- The student's existing team assignment is retained. While her account is inactive, she owes neither a weekly activity report nor a peer evaluation (BR-submission-owed).
 - The student cannot log in or submit weekly activity reports or peer evaluations. Existing peer evaluations about her remain in section reports for their evaluated weeks (BR-peer-evaluation-active-evaluatee).
 - An already authenticated session loses access to protected resources on its next request (FR-SEC-active-account).
 
