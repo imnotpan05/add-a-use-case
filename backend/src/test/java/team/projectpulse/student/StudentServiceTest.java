@@ -153,7 +153,7 @@ class StudentServiceTest {
     @Test
     void testInstructorUpdatesStudent() {
         // Given
-        Student update = new Student("john", "John (updated)", "Smith (updated)", "j.smith@abc.edu (updated)", "", false, "admin student");
+        Student update = new Student("john", "John (updated)", "Smith (updated)", "j.smith@abc.edu (updated)", "", true, "admin student");
         given(this.studentRepository.findById(1)).willReturn(Optional.of(this.students.get(0)));
         given(this.studentRepository.save(any(Student.class))).willReturn(this.students.get(0));
 
@@ -174,7 +174,29 @@ class StudentServiceTest {
         assertThat(result.getLastName()).isEqualTo(update.getLastName());
         assertThat(result.getEmail()).isEqualTo(update.getEmail());
 //        assertThat(result.getRoles()).isEqualTo(update.getRoles());
-        assertThat(result.isEnabled()).isEqualTo(update.isEnabled());
+        assertThat(result.isEnabled()).isTrue();
+    }
+
+    @Test
+    void testInstructorCannotDisableStudentThroughGenericUpdate() {
+        Student activeStudent = this.students.get(0);
+        Student update = new Student("john", "John", "Smith", "j.smith@abc.edu", "", false, "student");
+        given(this.studentRepository.findById(1)).willReturn(Optional.of(activeStudent));
+
+        Instructor instructor = new Instructor();
+        instructor.setRoles("instructor");
+        MyUserPrincipal principal = new MyUserPrincipal(instructor);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
+        SecurityContextHolder.setContext(context);
+
+        Throwable throwable = org.assertj.core.api.Assertions.catchThrowable(() -> this.studentService.updateStudent(1, update));
+
+        assertThat(throwable)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Students must be deactivated through the confirmed deactivation action.");
+        assertThat(activeStudent.isEnabled()).isTrue();
+        verify(this.studentRepository, never()).save(any(Student.class));
     }
 
     @Test
