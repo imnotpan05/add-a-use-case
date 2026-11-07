@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("Integration tests for Student API endpoints")
 class StudentIntegrationTest extends AbstractIntegrationTest {
@@ -305,6 +306,61 @@ class StudentIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.code").value(StatusCode.FORBIDDEN))
                 .andExpect(jsonPath("$.message").value("No permission."))
                 .andExpect(jsonPath("$.data").value("Access Denied"));
+    }
+
+    @Test
+    void testAssignedInstructorCanDeactivateStudentAndRepeatIdempotently() throws Exception {
+        String path = this.baseUrl + "/students/4/deactivate";
+
+        this.mockMvc.perform(post(path).header(HttpHeaders.AUTHORIZATION, this.instructorBillToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.data.enabled").value(false))
+                .andExpect(jsonPath("$.data.teamId").value(1));
+
+        this.mockMvc.perform(post(path).header(HttpHeaders.AUTHORIZATION, this.instructorBillToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.data.enabled").value(false))
+                .andExpect(jsonPath("$.data.teamId").value(1));
+    }
+
+    @Test
+    void testOwningCourseAdminCanDeactivateStudent() throws Exception {
+        this.mockMvc.perform(post(this.baseUrl + "/students/4/deactivate")
+                        .header(HttpHeaders.AUTHORIZATION, this.adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.enabled").value(false));
+    }
+
+    @Test
+    void testStudentCannotDeactivateSelf() throws Exception {
+        this.mockMvc.perform(post(this.baseUrl + "/students/4/deactivate")
+                        .header(HttpHeaders.AUTHORIZATION, this.studentJohnToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.data").value("Access Denied"));
+    }
+
+    @Test
+    void testUnassignedInstructorCannotDeactivateStudent() throws Exception {
+        this.mockMvc.perform(post(this.baseUrl + "/students/4/deactivate")
+                        .header(HttpHeaders.AUTHORIZATION, this.adminTimToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.data").value("Access Denied"));
+    }
+
+    @Test
+    void testMissingStudentCannotBeDeactivated() throws Exception {
+        this.mockMvc.perform(post(this.baseUrl + "/students/999/deactivate")
+                        .header(HttpHeaders.AUTHORIZATION, this.instructorBillToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.data").value("Access Denied"));
+    }
+
+    @Test
+    void testUnauthenticatedCallerCannotDeactivateStudent() throws Exception {
+        this.mockMvc.perform(post(this.baseUrl + "/students/4/deactivate"))
+                .andExpect(status().isUnauthorized());
     }
 
 }

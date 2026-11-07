@@ -118,11 +118,24 @@ public class StudentService {
 
         // If the user is an admin, then the user can update all the fields
         if (authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_instructor"))) {
+            if (!update.isEnabled() && oldStudent.isEnabled()) {
+                throw new IllegalArgumentException("Students must be deactivated through the confirmed deactivation action.");
+            }
             oldStudent.setEnabled(update.isEnabled());
 //            oldStudent.setRoles(update.getRoles());
         }
 
         return this.studentRepository.save(oldStudent);
+    }
+
+    public Student deactivateStudent(Integer studentId) {
+        Student student = this.studentRepository.findById(studentId)
+                .orElseThrow(() -> new ObjectNotFoundException("student", studentId));
+        if (student.isEnabled()) {
+            student.setEnabled(false);
+            return this.studentRepository.save(student);
+        }
+        return student;
     }
 
     public void deleteStudent(Integer studentId) {

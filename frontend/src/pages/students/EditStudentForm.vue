@@ -14,11 +14,12 @@
       <el-input v-model="studentBeingEdited.username"></el-input>
     </el-form-item>
     <el-form-item label="Status:" prop="enabled">
+      <el-tag v-if="studentBeingEdited.enabled" type="success">Active</el-tag>
       <el-switch
+        v-else
         v-model="studentBeingEdited.enabled"
-        inline-prompt
-        active-text="Enabled"
-        inactive-text="Disabled"
+        active-text="Reactivate"
+        inactive-text="Inactive"
         style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
       />
     </el-form-item>
@@ -36,16 +37,24 @@
     </el-form-item>
     <div style="display: flex; justify-content: end">
       <el-button @click="$emit('close-dialog')"> Cancel </el-button>
+      <el-button
+        v-if="studentBeingEdited.enabled"
+        data-cy="student-deactivate"
+        type="warning"
+        @click="confirmDeactivation"
+      >
+        Deactivate
+      </el-button>
       <el-button type="primary" @click="updateExistingStudent()"> Confirm </el-button>
     </div>
   </el-form>
 </template>
 
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import type { Student } from '@/apis/student/types'
 import type { FormInstance } from 'element-plus'
-import { findStudentById, updateStudent } from '@/apis/student'
+import { deactivateStudent, findStudentById, updateStudent } from '@/apis/student'
 import { ref, onMounted } from 'vue'
 
 const { studentId } = defineProps(['studentId'])
@@ -120,6 +129,27 @@ async function updateExistingStudent() {
   await updateStudent(updatedStudent)
 
   ElMessage.success('Student updated successfully')
+  emit('close-dialog')
+}
+
+async function confirmDeactivation() {
+  try {
+    await ElMessageBox.confirm(
+      `Deactivate ${studentBeingEdited.value.firstName} ${studentBeingEdited.value.lastName}? They will lose access to protected resources. Their team assignment and existing records will be kept.`,
+      'Confirm student deactivation',
+      {
+        confirmButtonText: 'Deactivate',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }
+    )
+  } catch {
+    // Cancelling the warning leaves the account unchanged.
+    return
+  }
+
+  await deactivateStudent(studentBeingEdited.value.id as number)
+  ElMessage.success('Student deactivated successfully')
   emit('close-dialog')
 }
 </script>
