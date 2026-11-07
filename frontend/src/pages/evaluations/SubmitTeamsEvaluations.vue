@@ -209,7 +209,7 @@ async function prepareStartingPeerEvaluations() {
   } else {
     // If not, create a new set of evaluations
     isNewSubmission = true
-    peerEvalutions.value = students.value.map((student) => ({
+    peerEvalutions.value = students.value.filter((student) => student.enabled).map((student) => ({
       week: previousWeek.value,
       evaluatorId: (userInfoStore.userInfo as Student).id as number,
       evaluateeId: student.id as number,
