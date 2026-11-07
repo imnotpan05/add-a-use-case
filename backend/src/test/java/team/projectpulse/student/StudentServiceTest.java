@@ -5,6 +5,7 @@ import team.projectpulse.instructor.Instructor;
 import team.projectpulse.section.Section;
 import team.projectpulse.section.SectionRepository;
 import team.projectpulse.system.UserUtils;
+import team.projectpulse.team.Team;
 import team.projectpulse.user.MyUserPrincipal;
 import team.projectpulse.user.userinvitation.UserInvitationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -196,6 +197,34 @@ class StudentServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Students must be deactivated through the confirmed deactivation action.");
         assertThat(activeStudent.isEnabled()).isTrue();
+        verify(this.studentRepository, never()).save(any(Student.class));
+    }
+
+    @Test
+    void testDeactivateStudentKeepsTeamAndSavesDisabledState() {
+        Student student = this.students.get(0);
+        Team team = new Team("Team 1", "", "");
+        student.setTeam(team);
+        given(this.studentRepository.findById(1)).willReturn(Optional.of(student));
+        given(this.studentRepository.save(student)).willReturn(student);
+
+        Student result = this.studentService.deactivateStudent(1);
+
+        assertThat(result.isEnabled()).isFalse();
+        verify(this.studentRepository).save(student);
+        assertThat(result.getTeam()).isSameAs(student.getTeam());
+    }
+
+    @Test
+    void testDeactivateStudentIsIdempotent() {
+        Student student = this.students.get(0);
+        student.setEnabled(false);
+        given(this.studentRepository.findById(1)).willReturn(Optional.of(student));
+
+        Student result = this.studentService.deactivateStudent(1);
+
+        assertThat(result).isSameAs(student);
+        assertThat(result.isEnabled()).isFalse();
         verify(this.studentRepository, never()).save(any(Student.class));
     }
 
